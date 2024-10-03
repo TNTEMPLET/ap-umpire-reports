@@ -1,15 +1,41 @@
-import { assignr_url, client_id, client_secret } from "./config.js";
+import { assignr_url, client_id, client_secret, redirectUri } from "./config.js";
+
+const clientId = client_id;
+const clientSecret = client_secret;
+const tokenUrl = "https://app.assignr.com/oauth/token";
+
+function redirectToAuthoriztion () {
+    const authUrl = `https://app.assignr.com/oauth/authorize?response_type=code&client_id=${clientId}&redirect_uri=${encodeURIComponent(redirectUri)}`;
+    window.location.href = authUrl;
+}
+
+async function handleAuthCallback() {
+    const urlParams = new URLSearchParams(window.location.search);
+    const authCode = urlParams.get('code');
+
+    if (authCode) {
+        const accessToken = await(getToken(authCode));
+        console.log('Access Token: ', accessToken);
+        localStorage.setItem('accessToken', accessToken);
+        populateReport();
+    } else {
+        console.error(`No authorization code found.`)
+    }
+}
+
 // Get Bearer Token
 
-async function getToken(tokenUrl, clientId, clientSecret) {
+async function getToken(authCode) {
     const headers = {
         "Content-Type": "application/x-www-form-urlencoded"
     };
 
     const body = new URLSearchParams({
-        grant_type: 'client_credentials',
+        grant_type: 'authorization_code',
+        code: authCode,
+        redirectUri: redirectUri,
         client_id: clientId,
-        client_secret: clientSecret
+        client_secret: clientSecret,
     });
 
     try {
@@ -28,8 +54,9 @@ async function getToken(tokenUrl, clientId, clientSecret) {
         console.log(data)
         
         const accessToken = data.access_token;
+        const refreshToken = data.refresh_token;
 
-        return(accessToken)
+        return { accessToken, refreshToken }
     
     } catch (error) {
         console.error(`Network error: ${error}`);
@@ -103,13 +130,14 @@ async function getGameIds(accessToken, apiUrl, siteId, startDate =  null, endDat
 }
 
 async function populateReport() {
-    // Configuration
-    const tokenUrl = "http://localhost:3000/proxy/oauth/token";
-    const apiUrl = "http://localhost:3000/api";
-    const clientId = client_id;
-    const clientSecret = client_secret;
+    // Check for an existing access token
+    let accessToken = localStorage.getItem('accessToken')
 
-    const accessToken = await getToken(tokenUrl, clientId, clientSecret);
+    // If no token, redirect to authorization
+    if (!accessToken) {
+        redirectToAuthoriztion();
+        return;
+    }
 
     const siteId = `18601`;
     const startDate = document.getElementById("start-date").value;
@@ -270,5 +298,24 @@ async function generateAndPrintReport(){
     window.print();
 }
 
-document.getElementById("generate-report").addEventListener('click', populateReport);
-document.getElementById("print-report").addEventListener('click', generateAndPrintReport);
+document.getElementById("generate-report").addEventListener('click', async () => {
+    const urlParams = new URLSearchParams(window.location.search);
+    const authCode = urlParams.get('code');
+
+    if (authCode) {
+        await handleAuthCallback(); // Handle the authorization code
+    } else {
+        await populateReport(); // Populate the report if no code is present
+    }
+});
+
+document.getElementById("print-report").addEventListener('click', async () => {
+    const urlParams = new URLSearchParams(window.location.search);
+    const authCode = urlParams.get('code');
+
+    if (authCode) {
+        await handleAuthCallback(); // Handle the authorization code
+    } else {
+        await generateAndPrintReport(); // Populate the report if no code is present
+    }
+});;
