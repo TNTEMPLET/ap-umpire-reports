@@ -86,7 +86,7 @@ async function populateReport() {
     // const tokenUrl = "http://localhost:3000/proxy/oauth/token";
     // const apiUrl = "http://localhost:3000/api";
     const tokenUrl = 'https://cors-anywhere.herokuapp.com/https://app.assignr.com/oauth/token';
-    const apiUrl = assignr_url
+    const apiUrl = assignr_url;
     const clientId = client_id;
     const clientSecret = client_secret;
     const accessToken = await getToken(tokenUrl, clientId, clientSecret);
