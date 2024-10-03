@@ -41,6 +41,7 @@ async function getToken(authCode) {
     try {
         const response = await fetch(tokenUrl, {
             method: 'POST',
+            mode: 'no-cors',
             headers: headers,
             body: body
         });
@@ -130,8 +131,16 @@ async function getGameIds(accessToken, apiUrl, siteId, startDate =  null, endDat
 }
 
 async function populateReport() {
+<<<<<<< HEAD
     // Check for an existing access token
     let accessToken = localStorage.getItem('accessToken')
+=======
+    // Configuration
+    const tokenUrl = "https://app.assignr.com/oauth/token";
+    const apiUrl = assignr_url;
+    const clientId = client_id;
+    const clientSecret = client_secret;
+>>>>>>> dd86c997d72ecfe1b1889941fa45b2119743a9c9
 
     // If no token, redirect to authorization
     if (!accessToken) {
