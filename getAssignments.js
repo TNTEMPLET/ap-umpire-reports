@@ -15,6 +15,7 @@ async function getToken(tokenUrl, clientId, clientSecret) {
     try {
         const response = await fetch(tokenUrl, {
             method: 'POST',
+            mode: 'no-cors',
             headers: headers,
             body: body
         });
