@@ -1,0 +1,81 @@
+body {
+    font-family: Arial, Helvetica, sans-serif;
+    font-size: 0.8em;
+    margin: 20px;
+}
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+h1, h2 {
+    text-align: center; /* Center the heading */
+    margin-bottom: 20px; /* Space below the heading */
+}
+
+td {
+    padding: 10px; /* Add padding to cells */
+    text-align: left; /* Align text to the left */
+    border: 1px solid #ccc; /* Light border for clarity */
+}
+
+th, tr {
+    padding: 10px; /* Add padding to cells */
+    text-align: center; /* Align text to the left */
+    border: 1px solid #ccc; /* Light border for clarity */
+}
+
+tbody tr:nth-child(even) {
+    background-color: #f2f2f2; /* Zebra striping for readability */
+}
+
+#games-table {
+    width: 100%; /* Full width for the table */
+    border-collapse: collapse; /* Collapse borders */
+}
+
+#report {
+    display: flex;
+    flex-direction: column;
+    width: 100%; /* Full width */
+    max-width: 1200px; /* Optional: limit maximum width */
+    margin: 0 auto; /* Center the report */
+    padding: 20px; /* Add padding for spacing */
+    background-color: #f9f9f9; /* Light background for contrast */
+}
+
+.park-header {
+    font-weight: bold;
+    font-size: 1.2em;
+    text-align: center;
+}
+
+.park-section {
+    margin: 20px 14px;
+    box-sizing: border-box;
+    flex: 1;
+}
+
+@media print {
+    #report {
+        margin: 0; /* Remove margin for print */
+        padding: 0; /* Remove padding for print */
+        width: 100%;
+        font-size: 0.7em;
+        display: flex;
+        flex-direction: column;
+    }
+    #games-table {
+        page-break-inside: auto; /* Prevent breaking inside tables */
+        width: 100%;
+    }
+    .park-section {
+        page-break-after: always; /* Ensure each park section starts on a new page */
+
+    }
+    input, button, label {
+        display: none;
+    }
+}
