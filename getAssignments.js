@@ -1,33 +1,84 @@
-import { assignr_url, client_id, client_secret } from "./config.js";
+import { assignr_url, client_id, client_secret, redirect_uri } from "./config.js";
 // Get Bearer Token
-async function getToken(tokenUrl, clientId, clientSecret) {
-    const headers = {
-        "Content-Type": "application/x-www-form-urlencoded"
-    };
-    const body = new URLSearchParams({
-        grant_type: 'client_credentials',
-        client_id: clientId,
-        client_secret: clientSecret
-    });
-    try {
-        const response = await fetch(tokenUrl, {
-            method: 'POST',
-            headers: headers,
-            body: body
-        });
-        if (!response.ok) {
-            const errorText = await response.text();
-            throw new Error(`Error retrieving access token. Status Code ${response.status} - ${errorText}`);
-        }
-        const data = await response.json();
-        console.log(data)
+// async function getToken(tokenUrl, clientId, clientSecret) {
+//     const headers = {
+//         "Content-Type": "application/x-www-form-urlencoded"
+//     };
+//     const body = new URLSearchParams({
+//         grant_type: 'client_credentials',
+//         client_id: clientId,
+//         client_secret: clientSecret
+//     });
+//     try {
+//         const response = await fetch(tokenUrl, {
+//             method: 'POST',
+//             headers: headers,
+//             body: body
+//         });
+//         if (!response.ok) {
+//             const errorText = await response.text();
+//             throw new Error(`Error retrieving access token. Status Code ${response.status} - ${errorText}`);
+//         }
+//         const data = await response.json();
+//         console.log(data)
         
-        const accessToken = data.access_token;
-        return(accessToken)
+//         const accessToken = data.access_token;
+//         return(accessToken)
     
-    } catch (error) {
-        console.error(`Network error: ${error}`);
+//     } catch (error) {
+//         console.error(`Network error: ${error}`);
+//     }
+// }
+function redirectToAuthorize() {
+    const clientId = client_id;
+    const redirectUri = encodeURIComponent(redirect_uri);
+    const scopes = encodeURIComponent('read');
+    const authorizationUrl = `https://app.assignr.com/oauth/authorize?client_id=${clientId}&redirect_uri=${redirectUri}&response_type=code&scope=${scopes}`;
+    
+    window.location.href = authorizationUrl; // Redirect the user
+}
+
+// Step 2: Handle the redirect back to your app
+async function handleRedirect() {
+    const params = new URLSearchParams(window.location.search);
+    const code = params.get('code');
+
+    if (code) {
+        const accessToken = await exchangeCodeForToken(code);
+        console.log('Access Token:', accessToken);
+
+        // Now you can use the access token to make API requests
+        const data = await fetchData(accessToken);
+        console.log('API Response:', data);
     }
+}
+
+// Step 3: Exchange the code for an access token
+async function exchangeCodeForToken(code) {
+    const clientId = client_id;
+    const clientSecret = client_secret;
+    const redirectUri = redirect_uri;
+    
+    const response = await fetch('https://app.assignr.com/oauth/token', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/x-www-form-urlencoded',
+        },
+        body: new URLSearchParams({
+            'client_id': clientId,
+            'client_secret': clientSecret,
+            'code': code,
+            'grant_type': 'authorization_code',
+            'redirect_uri': redirectUri
+        })
+    });
+
+    if (!response.ok) {
+        throw new Error('Failed to exchange code for access token');
+    }
+
+    const data = await response.json();
+    return data.access_token; // Return the access token
 }
 // Get Game IDs
 async function getGameIds(accessToken, apiUrl, siteId, startDate =  null, endDate = null) {
@@ -43,6 +94,7 @@ async function getGameIds(accessToken, apiUrl, siteId, startDate =  null, endDat
     });
     let allGames = [];
     let page = 1;
+
     // While loop to get around pagination
     while(true) {
         params.set('page', page);
@@ -85,11 +137,9 @@ async function populateReport() {
     // Configuration
     // const tokenUrl = "http://localhost:3000/proxy/oauth/token";
     // const apiUrl = "http://localhost:3000/api";
-    const tokenUrl = 'https://cors-anywhere.herokuapp.com/https://app.assignr.com/oauth/token';
     const apiUrl = assignr_url;
-    const clientId = client_id;
-    const clientSecret = client_secret;
-    const accessToken = await getToken(tokenUrl, clientId, clientSecret);
+    // const accessToken = await getToken(tokenUrl, clientId, clientSecret);
+    const accessToken = await handleRedirect();
     const siteId = `18601`;
     const startDate = document.getElementById("start-date").value;
     const endDate = document.getElementById("end-date").value;
