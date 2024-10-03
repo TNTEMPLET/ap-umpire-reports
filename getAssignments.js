@@ -1,4 +1,4 @@
-import { assignr_url, client_id, client_secret, redirect_uri } from "./config.js";
+import { assignr_url, client_id, client_secret, redirect_uri, cors_url } from "./config.js";
 // Get Bearer Token
 // async function getToken(tokenUrl, clientId, clientSecret) {
 //     const headers = {
@@ -137,7 +137,7 @@ async function populateReport() {
     // Configuration
     // const tokenUrl = "http://localhost:3000/proxy/oauth/token";
     // const apiUrl = "http://localhost:3000/api";
-    const apiUrl = assignr_url;
+    const apiUrl = cors_url + assignr_url;
     // const accessToken = await getToken(tokenUrl, clientId, clientSecret);
     const accessToken = await handleRedirect();
     const siteId = `18601`;
