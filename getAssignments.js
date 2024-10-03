@@ -130,7 +130,6 @@ async function getGameIds(accessToken, apiUrl, siteId, startDate =  null, endDat
 }
 
 async function populateReport() {
-    // Check for an existing access token
     let accessToken = localStorage.getItem('accessToken')
 
     // Configuration
