@@ -85,7 +85,7 @@ async function getGameIds(accessToken, apiUrl, siteId, startDate =  null, endDat
 async function populateReport() {
     // Configuration
     const tokenUrl = "http://localhost:3000/proxy/oauth/token";
-    const apiUrl = "http://localhost:3000/api";
+    const apiUrl = "http://localhost:3001/api";
     const clientId = client_id;
     const clientSecret = client_secret;
     const accessToken = await getToken(tokenUrl, clientId, clientSecret);
