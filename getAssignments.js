@@ -85,7 +85,7 @@ async function getGameIds(accessToken, apiUrl, siteId, startDate =  null, endDat
 async function populateReport() {
     // Configuration
     const tokenUrl = "http://localhost:3000/proxy/oauth/token";
-    const apiUrl = "http://localhost:3001/api";
+    const apiUrl = "http://localhost:3000/api";
     const clientId = client_id;
     const clientSecret = client_secret;
     const accessToken = await getToken(tokenUrl, clientId, clientSecret);
@@ -102,7 +102,7 @@ async function populateReport() {
         '9U': 60,
         '10U': 60,
         '12U': 60,
-        '14U': 60,
+        '14U': 80,
         '16U': 60
     };
     // Group games by venue
@@ -163,13 +163,37 @@ async function populateReport() {
                 const assignmentCount = assignments.length;
                 const firstName = assignments._embedded?.official?.first_name || '';
                 const ageGroup = game.age_group;
-                let firstUmpirePay = payRates[ageGroup] || 0;
+                let firstUmpirePay = 0;
                 let secondUmpirePay = 0;
-                if (ageGroup === '9U' && assignmentCount === 2) {
-                    secondUmpirePay = 40;
+
+                // Set pay based on the number of umpires assigned
+                if (ageGroup === '16U') {
+                    // Always 2 umpires for 16U
+                    firstUmpirePay = payRates[ageGroup];  // Rate for the first umpire
+                    secondUmpirePay = payRates[ageGroup];  // Rate for the second umpire
+                } else if (ageGroup === '8U' || ageGroup === '7U') {
+                    // Always 2 umpires for 8U and 7U
+                    firstUmpirePay = payRates[ageGroup];  // Adjust to the specific rate for 7U/8U
+                    secondUmpirePay = payRates[ageGroup];  // Adjust to the specific rate for 7U/8U
+                } else if (ageGroup === '9U') {
+                    if (assignmentCount === 2) {
+                        // Specific pay logic for 2 umpires in 9U
+                        firstUmpirePay = payRates[ageGroup];  // Adjust if different for the first umpire
+                        secondUmpirePay = 40;  // Adjust if different for the second umpire
+                    } else {
+                        // Only one umpire assigned for 9U
+                        firstUmpirePay = payRates[ageGroup];  // Pay for one umpire
+                    }
                 } else {
-                    secondUmpirePay = payRates[ageGroup] || 0;
+                    // Default case for other age groups (1 umpire)
+                    if (assignmentCount === 1) {
+                        firstUmpirePay = payRates[ageGroup] || 0; // Standard pay
+                    }
                 }
+                
+
+                console.log(firstUmpirePay, secondUmpirePay)
+
                 let gamePay = firstUmpirePay + secondUmpirePay; // Total pay for the game
                 let fieldPosition = assignmentCount > 1 ? assignments[0]?.position || '' : '';
                 let umpireColumns = [];
