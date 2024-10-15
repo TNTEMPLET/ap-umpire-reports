@@ -84,8 +84,8 @@ async function getGameIds(accessToken, apiUrl, siteId, startDate =  null, endDat
 }
 async function populateReport() {
     // Configuration
-    const tokenUrl = "http://localhost:3000/proxy/oauth/token";
-    const apiUrl = "http://localhost:3000/api";
+    const tokenUrl = "http://localhost:3100/proxy/oauth/token";
+    const apiUrl = "http://localhost:3100/api";
     const clientId = client_id;
     const clientSecret = client_secret;
     const accessToken = await getToken(tokenUrl, clientId, clientSecret);
@@ -121,28 +121,12 @@ async function populateReport() {
         const parkDiv = document.createElement("div");
         parkDiv.classList.add("park-section");
         const parkHeader = document.createElement("h1");
-        parkHeader.textContent = `Game Assigment Report for ${park}`;
         const dateRangeHeader = document.createElement("h2");
         dateRangeHeader.id = "date-range";
         dateRangeHeader.textContent = `From: ${startDate} To: ${endDate}`;
         parkDiv.appendChild(parkHeader);
         parkDiv.appendChild(dateRangeHeader);
         
-        const parkHeaderRow = document.createElement("tr");
-        parkHeaderRow.innerHTML = `<td colspan="16" class="park-header">${park}</td>`;
-        parkDiv.appendChild(parkHeaderRow)
-        const tableHeaderRow = document.createElement("tr")
-        tableHeaderRow.innerHTML = `
-            <th>Date</th>
-            <th>Time</th>
-            <th>Home Team</th>
-            <th>Away Team</th>
-            <th>Park</th>
-            <th>Field</th>
-            <th>Age Group</th>
-            <th colspan="8">Assignments</th>
-        `;
-        parkDiv.appendChild(tableHeaderRow);
         let totalWeeklyPay = 0;
         // Group Games by date for this park
         const gamesByDate = groupedGames[park].reduce((acc, game) => {
@@ -157,6 +141,33 @@ async function populateReport() {
         for (const date in gamesByDate) {
             const games = gamesByDate[date];
             let totalPayforDate = 0;
+
+            const dateObj = new Date(date);
+            const days = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
+            const dayName = days[dateObj.getDay()];
+
+            const dateSection = document.createElement("div");
+            dateSection.classList.add("date-section");
+
+            const dateHeaderRow = document.createElement("tr")
+            dateHeaderRow.innerHTML =`
+                <td colspan=16 class="date-header">${dayName}</td>
+            `;
+            dateSection.appendChild(dateHeaderRow);
+
+            const tableHeaderRow = document.createElement("tr")
+            tableHeaderRow.innerHTML = `
+                <th>Date</th>
+                <th>Time</th>
+                <th>Home Team</th>
+                <th>Away Team</th>
+                <th>Park</th>
+                <th>Field</th>
+                <th>Age Group</th>
+                <th colspan="8">Assignments</th>
+            `;
+            dateSection.appendChild(tableHeaderRow);
+
             // Process each game for this date
             games.forEach(game => {
                 const assignments = game._embedded.assignments || [];
@@ -222,16 +233,20 @@ async function populateReport() {
                     <td>${game.age_group}</td>
                     ${umpireColumns.join('')}
                 `;
-                parkDiv.appendChild(row);
+                dateSection.appendChild(row);
             });
             const totalRow = document.createElement("tr");
             totalRow.innerHTML = `<td colspan="16" style="font-weight: bold;">Total Pay for ${date} = $${totalPayforDate}</td>`;
-            parkDiv.appendChild(totalRow);
+            dateSection.appendChild(totalRow);
+            parkDiv.appendChild(dateSection);
         }
          //Output weekly totals
         const totalWeekRow = document.createElement("tr");
-        totalWeekRow.innerHTML = `<td colspan="16" style="font-weight: bold;">Total Pay for ${park} = $${totalWeeklyPay}</td>`;
-        parkDiv.appendChild(totalWeekRow);
+        totalWeekRow.innerHTML = `
+            <td colspan="16" style="font-weight: bold;">${park}</td></br>
+            <td colspan="16" style="font-weight: bold; font-size: .75em;">Total Pay  = $${totalWeeklyPay}</td>
+            `;
+        parkHeader.innerHTML = totalWeekRow.innerHTML;
         gamesContainer.appendChild(parkDiv);
     }
 }

@@ -1,7 +1,7 @@
 body {
     font-family: Arial, Helvetica, sans-serif;
     font-size: 0.8em;
-    margin: 20px;
+    margin: 0 20px;
 }
 
 * {
@@ -15,16 +15,20 @@ h1, h2 {
     margin-bottom: 20px; /* Space below the heading */
 }
 
-td {
-    padding: 10px; /* Add padding to cells */
-    text-align: left; /* Align text to the left */
-    border: 1px solid #ccc; /* Light border for clarity */
+input {
+    border: 1 solid #ccc;
+    border-radius: 5px;
+    font-family: Arial, Helvetica, sans-serif;
 }
 
-th, tr {
+td, th {
     padding: 10px; /* Add padding to cells */
-    text-align: center; /* Align text to the left */
     border: 1px solid #ccc; /* Light border for clarity */
+    word-wrap: break-word; /* Allow word wrapping */
+}
+
+td {
+    text-align: left; /* Align text to the left */
 }
 
 tbody tr:nth-child(even) {
@@ -34,6 +38,7 @@ tbody tr:nth-child(even) {
 #games-table {
     width: 100%; /* Full width for the table */
     border-collapse: collapse; /* Collapse borders */
+    table-layout: fixed; /* Ensure fixed layout for proper width distribution */
 }
 
 #report {
@@ -46,36 +51,70 @@ tbody tr:nth-child(even) {
     background-color: #f9f9f9; /* Light background for contrast */
 }
 
-.park-header {
-    font-weight: bold;
-    font-size: 1.2em;
+#input-bar{
+    padding: 10px;
     text-align: center;
+}
+
+.date-header, .park-header {
+    font-weight: bold;
+    text-align: center;
+}
+
+.date-header {
+    font-size: 1.25em;
+}
+
+.park-header {
+    font-size: 1.75em;
 }
 
 .park-section {
     margin: 20px 14px;
     box-sizing: border-box;
-    flex: 1;
+    width: 100%; /* Ensure the park section takes full width */
 }
 
 @media print {
+    body {
+        font-size: .7em;
+        margin-left: 20px;
+        margin-right: 20px;
+    }
+
     #report {
+        width: 100%; /* Full width for the report */
         margin: 0; /* Remove margin for print */
         padding: 0; /* Remove padding for print */
-        width: 100%;
-        font-size: 0.7em;
-        display: flex;
-        flex-direction: column;
     }
-    #games-table {
-        page-break-inside: auto; /* Prevent breaking inside tables */
-        width: 100%;
-    }
-    .park-section {
-        page-break-after: always; /* Ensure each park section starts on a new page */
 
+    .park-section {
+        page-break-after: always; /* New page for each park section */
+        width: 100%; /* Ensure full width */
     }
+    .date-section {
+        page-break-after: always;
+        width: 100%;
+    }
+
+    #games-table {
+        width: 100%; /* Ensure the table takes full width when printing */
+        border-collapse: collapse; /* Collapse borders */
+        table-layout: fixed; /* Ensure fixed layout */
+    }
+
+    th, td {
+        padding: 10px; /* Add padding to cells */
+        border: 1px solid #ccc; /* Light border for clarity */
+        text-align: left; /* Align text */
+    }
+
+    h1, h2 {
+        text-align: center; /* Center the headings */
+    }
+
+    /* Hide unnecessary elements */
     input, button, label {
-        display: none;
+        display: none; /* Hide inputs and buttons in print */
     }
 }
