@@ -99,6 +99,7 @@ async function populateReport() {
      const payRates = {
         '7U': 40,
         '8U': 40,
+        '8UMAJ': 40,
         '9U': 60,
         '10U': 60,
         '12U': 60,
