@@ -103,9 +103,9 @@ async function populateReport() {
         '8UMAJ': 40,
         '9U': 60,
         '10U': 60,
-        '10UMAJ': 60,
+        '10UMAJ': 50,
         '12U': 60,
-        '12UMAJ': 60,
+        '12UMAJ': 50,
         '15U': 80,
         '17U': 60
     };
@@ -202,7 +202,7 @@ async function populateReport() {
                 } else {
                     // Default case for other age groups (1 umpire)
                     if (assignmentCount === 1) {
-                        firstUmpirePay = payRates[ageGroup] || 0; // Standard pay
+                        firstUmpirePay = 60 || 0; // Standard pay
                     } else {
                         // Special case for 2 umpires
                         firstUmpirePay = payRates[ageGroup] || 0;  // Adjust if different for the first umpire
