@@ -399,10 +399,9 @@ function updateDateRange() {
 }
 startDateInput.addEventListener('input', updateDateRange);
 endDateInput.addEventListener('input', updateDateRange)
-async function generateAndPrintReport(){
-    await populateReport();
+async function printReport(){
     window.print();
 }
 document.getElementById("generate-main-report").addEventListener('click', populateReport);
 document.getElementById("generate-umpire-report").addEventListener('click', populateUmpireReport);
-document.getElementById("print-report").addEventListener('click', generateAndPrintReport);
+document.getElementById("print-report").addEventListener('click', printReport);
