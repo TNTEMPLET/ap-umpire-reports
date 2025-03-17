@@ -24,7 +24,8 @@ async function getToken(tokenUrl, clientId, clientSecret) {
             throw new Error(`Error retrieving access token. Status Code ${response.status} - ${errorText}`);
         }
         const data = await response.json();
-        console.log("Loading data...");
+        document.getElementById("report").innerHTML = "Loading data...";
+        
         
         const accessToken = data.access_token;
         return(accessToken)
