@@ -1,7 +1,6 @@
 body {
     font-family: Arial, Helvetica, sans-serif;
     font-size: 0.8em;
-    margin: 0 20px;
 }
 
 * {
@@ -47,7 +46,7 @@ tbody tr:nth-child(even) {
     width: 100%; /* Full width */
     max-width: 1200px; /* Optional: limit maximum width */
     margin: 0 auto; /* Center the report */
-    padding: 20px; /* Add padding for spacing */
+    padding: 20px 25px; /* Add padding for spacing */
     background-color: #f9f9f9; /* Light background for contrast */
 }
 
@@ -70,9 +69,13 @@ tbody tr:nth-child(even) {
 }
 
 .park-section {
-    margin: 20px 14px;
-    box-sizing: border-box;
+    margin-bottom: 20px;
     width: 100%; /* Ensure the park section takes full width */
+}
+
+.date-section {
+    width: 100%;
+    border-collapse: collapse;
 }
 
 @media print {

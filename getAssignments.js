@@ -150,7 +150,7 @@ async function populateReport() {
             const days = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
             const dayName = days[dateObj.getDay()];
 
-            const dateSection = document.createElement("div");
+            const dateSection = document.createElement("table");
             dateSection.classList.add("date-section");
 
             const dateHeaderRow = document.createElement("tr")
@@ -220,7 +220,6 @@ async function populateReport() {
                 assignments.forEach((assignment, index) => {
                     if (index < 2 ) { // Limitting to two umpires
                         umpireColumns.push(`
-                            <td>${assignment.position}</td>
                             <td>${assignment._embedded?.official?.first_name || ''} ${assignment._embedded?.official?.last_name || ''}</td>
                             <td>$${firstUmpirePay}</td>
                         `);
@@ -232,7 +231,7 @@ async function populateReport() {
                 // Add Game rows for the park
                 const row = document.createElement("tr");
                 row.innerHTML = `
-                    <td>${game.localized_date}</td>
+                    <td>${new Date(game.localized_date).toLocaleDateString("en-us")}</td>
                     <td>${game.localized_time}</td>
                     <td>${game.home_team}</td>
                     <td>${game.away_team}</td>
