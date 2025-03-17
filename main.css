@@ -26,6 +26,11 @@ td, th {
     word-wrap: break-word; /* Allow word wrapping */
 }
 
+td:nth-child(2), th:nth-child(2) {
+    min-width: 7.5%; /* Set width for the second column */
+    text-align: center; /* Align text to the center */
+}
+
 td {
     text-align: left; /* Align text to the left */
 }
