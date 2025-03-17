@@ -20,7 +20,7 @@ async function getToken(tokenUrl, clientId, clientSecret) {
             throw new Error(`Error retrieving access token. Status Code ${response.status} - ${errorText}`);
         }
         const data = await response.json();
-        console.log(data)
+        console.log("Loading data...");
         
         const accessToken = data.access_token;
         return(accessToken)
@@ -60,7 +60,6 @@ async function getGameIds(accessToken, apiUrl, siteId, startDate =  null, endDat
                 break;
             }
             const data = await response.json();
-            console.log('API Response: ', data);
             const games = data._embedded.games;
             if (Array.isArray(games)) {
                 allGames = allGames.concat(games);
@@ -209,9 +208,7 @@ async function populateReport() {
                         secondUmpirePay = payRates[ageGroup] || 0;  // Adjust if different for the second umpire
                     }
                 }
-                
-
-                console.log(firstUmpirePay, secondUmpirePay)
+        
 
                 let gamePay = firstUmpirePay + secondUmpirePay; // Total pay for the game
                 let fieldPosition = assignmentCount > 1 ? assignments[0]?.position || '' : '';
@@ -272,5 +269,5 @@ async function generateAndPrintReport(){
     await populateReport();
     window.print();
 }
-document.getElementById("generate-report").addEventListener('click', populateReport);
+document.getElementById("generate-main-report").addEventListener('click', populateReport);
 document.getElementById("print-report").addEventListener('click', generateAndPrintReport);
