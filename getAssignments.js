@@ -1,4 +1,8 @@
 import { assignr_url, client_id, client_secret } from "./config.js";
+
+const devBaseUrl = "http://localhost:3100";
+const prodBaseUrl = "https://apreports.netlify.app";
+
 // Get Bearer Token
 async function getToken(tokenUrl, clientId, clientSecret) {
     const headers = {
@@ -83,8 +87,8 @@ async function getGameIds(accessToken, apiUrl, siteId, startDate =  null, endDat
 }
 async function populateReport() {
     // Configuration
-    const tokenUrl = "http://localhost:3100/proxy/oauth/token";
-    const apiUrl = "http://localhost:3100/api";
+    const tokenUrl = `${prodBaseUrl}/proxy/oauth/token`;
+    const apiUrl = `${prodBaseUrl}/api`;
     const clientId = client_id;
     const clientSecret = client_secret;
     const accessToken = await getToken(tokenUrl, clientId, clientSecret);
@@ -257,8 +261,8 @@ async function populateReport() {
 
 async function populateUmpireReport() {
     // Configuration
-    const tokenUrl = "http://localhost:3100/proxy/oauth/token";
-    const apiUrl = "http://localhost:3100/api";
+    const tokenUrl = `${prodBaseUrl}/proxy/oauth/token`;
+    const apiUrl = `${prodBaseUrl}/api`;
     const clientId = client_id;
     const clientSecret = client_secret;
     const accessToken = await getToken(tokenUrl, clientId, clientSecret);
