@@ -254,6 +254,140 @@ async function populateReport() {
         gamesContainer.appendChild(parkDiv);
     }
 }
+
+async function populateUmpireReport() {
+    // Configuration
+    const tokenUrl = "http://localhost:3100/proxy/oauth/token";
+    const apiUrl = "http://localhost:3100/api";
+    const clientId = client_id;
+    const clientSecret = client_secret;
+    const accessToken = await getToken(tokenUrl, clientId, clientSecret);
+    const siteId = `18601`;
+    const startDate = document.getElementById("start-date").value;
+    const endDate = document.getElementById("end-date").value;
+    const games = await getGameIds(accessToken, apiUrl, siteId, startDate, endDate);
+    const gamesContainer = document.getElementById("games-container");
+    gamesContainer.innerHTML = '';
+
+    // Pay Scale
+    const payRates = {
+        '6UCP': 40, '7U': 40, '8U': 40, '8UMAJ': 40,
+        '9U': 60, '10U': 60, '10UMAJ': 50,
+        '12U': 60, '12UMAJ': 50,
+        '15U': 80, '17U': 60
+    };
+
+    // Group payments by park and then date
+    const paymentsByParkAndDate = games.reduce((acc, game) => {
+        const parkName = game._embedded?.venue?.name || 'Unknown Park';
+        const gameDate = new Date(game.start_time).toLocaleDateString();
+        const assignments = game._embedded?.assignments || [];
+        const ageGroup = game.age_group || 'Unknown';
+
+        // Calculate game pay
+        let gamePay = 0;
+        if (ageGroup === '17U' || ageGroup === '8U' || ageGroup === '7U' || ageGroup === '8UMAJ') {
+            gamePay = payRates[ageGroup] || 0;
+        } else if (ageGroup === '9U') {
+            gamePay = payRates[ageGroup] || 0;
+        } else {
+            gamePay = assignments.length === 1 ? 60 : (payRates[ageGroup] || 0);
+        }
+
+        // Process each assignment
+        assignments.forEach(assignment => {
+            const umpireId = assignment._embedded?.official?.id || 'unknown';
+            const umpireName = `${assignment._embedded?.official?.first_name || ''} ${assignment._embedded?.official?.last_name || ''}`.trim() || 'Unknown Umpire';
+            
+            if (!acc[parkName]) {
+                acc[parkName] = {};
+            }
+            if (!acc[parkName][gameDate]) {
+                acc[parkName][gameDate] = {};
+            }
+            if (!acc[parkName][gameDate][umpireId]) {
+                acc[parkName][gameDate][umpireId] = { 
+                    name: umpireName, 
+                    totalPay: 0 
+                };
+            }
+            acc[parkName][gameDate][umpireId].totalPay += gamePay;
+        });
+
+        return acc;
+    }, {});
+
+    // Create report grouped by park and date
+    const reportDiv = document.createElement("div");
+    reportDiv.classList.add("report-section");
+
+    const dateRangeHeader = document.createElement("h2");
+    dateRangeHeader.textContent = `From: ${startDate} To: ${endDate}`;
+    reportDiv.appendChild(dateRangeHeader);
+
+    // Process each park
+    for (const parkName in paymentsByParkAndDate) {
+        const parkSection = document.createElement("div");
+        parkSection.classList.add("park-section");
+
+        // Calculate park total
+        const dates = paymentsByParkAndDate[parkName];
+        const parkTotal = Object.values(dates).reduce((parkSum, dateUmpires) => {
+            return parkSum + Object.values(dateUmpires).reduce((dateSum, umpire) => dateSum + umpire.totalPay, 0);
+        }, 0);
+
+        const parkHeader = document.createElement("h3");
+        parkHeader.textContent = `${parkName} - $${parkTotal.toFixed(2)}`;
+        parkSection.appendChild(parkHeader);
+
+        // Process each date within the park
+        for (const date in dates) {
+            const dateObj = new Date(date);
+            const days = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
+            const dayName = days[dateObj.getDay()];
+
+            // Calculate daily total
+            const umpires = dates[date];
+            const dailyTotal = Object.values(umpires).reduce((sum, umpire) => sum + umpire.totalPay, 0);
+
+            const dateSection = document.createElement("table");
+            dateSection.classList.add("date-section");
+
+            // Date header with total
+            const dateHeaderRow = document.createElement("tr");
+            dateHeaderRow.innerHTML = `
+                <td colspan="2" class="date-header">${dayName} - ${date} - $${dailyTotal.toFixed(2)}</td>
+            `;
+            dateSection.appendChild(dateHeaderRow);
+
+            // Table headers
+            const tableHeaderRow = document.createElement("tr");
+            tableHeaderRow.innerHTML = `
+                <th>Umpire Name</th>
+                <th>Pay</th>
+            `;
+            dateSection.appendChild(tableHeaderRow);
+
+            // Add umpire rows
+            for (const umpireId in umpires) {
+                const umpireData = umpires[umpireId];
+                const row = document.createElement("tr");
+                row.innerHTML = `
+                    <td>${umpireData.name}</td>
+                    <td>$${umpireData.totalPay.toFixed(2)}</td>
+                `;
+                dateSection.appendChild(row);
+            }
+
+            parkSection.appendChild(dateSection);
+        }
+
+        reportDiv.appendChild(parkSection);
+    }
+
+    gamesContainer.appendChild(reportDiv);
+}
+
 // Add input box handing for date range
 const startDateInput = document.getElementById('start-date');
 const endDateInput = document.getElementById('end-date');
@@ -270,4 +404,5 @@ async function generateAndPrintReport(){
     window.print();
 }
 document.getElementById("generate-main-report").addEventListener('click', populateReport);
+document.getElementById("generate-umpire-report").addEventListener('click', populateUmpireReport);
 document.getElementById("print-report").addEventListener('click', generateAndPrintReport);
