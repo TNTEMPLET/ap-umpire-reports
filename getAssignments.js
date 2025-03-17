@@ -24,7 +24,7 @@ async function getToken(tokenUrl, clientId, clientSecret) {
             throw new Error(`Error retrieving access token. Status Code ${response.status} - ${errorText}`);
         }
         const data = await response.json();
-        document.getElementById("report").innerHTML = "Loading data...";
+        document.getElementById("games-container").innerText = "Loading data...";
         
         
         const accessToken = data.access_token;
