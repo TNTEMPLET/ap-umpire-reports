@@ -17,17 +17,10 @@ async function populateReport() {
 
     // Pay Scale (unchanged)
     const payRates = {
-        '6UCP': 40,
-        '7U': 40,
-        '8U': 40,
-        '8UMAJ': 40,
-        '9U': 60,
-        '10U': 60,
-        '10UMAJ': 50,
-        '12U': 60,
-        '12UMAJ': 50,
-        '15U': 80,
-        '17U': 60
+        '6UCP': 40, '7U': 40, '8U': 40, '8UMAJ': 40,
+        '9U': 60, '10U': 60, '10UMAJ': 50,
+        '12U': 60, '12UMAJ': 50,
+        '15U': 80, '17U': 60
     };
 
     // Group games by venue (unchanged)
@@ -98,18 +91,19 @@ async function populateReport() {
             // Process each game for this date
             games.forEach(game => {
                 const assignments = game._embedded.assignments || [];
-                const assignmentCount = assignments.length;
                 const ageGroup = game.age_group;
                 let gamePay = 0;
                 let umpireColumns = [];
 
-                // Only calculate pay if there are assignments
-                if (assignmentCount > 0) {
+                if (assignments.length > 0) {
                     let firstUmpirePay = 0;
                     let secondUmpirePay = 0;
-                    let validAssignments = assignments.filter(assignment => 
-                        assignment._embedded?.official?.first_name || assignment._embedded?.official?.last_name
-                    );
+                    // Filter out unknown umpires
+                    let validAssignments = assignments.filter(assignment => {
+                        const umpireId = assignment._embedded?.official?.id;
+                        const umpireName = `${assignment._embedded?.official?.first_name || ''} ${assignment._embedded?.official?.last_name || ''}`.trim();
+                        return umpireId && umpireName && umpireName !== 'Unknown Umpire';
+                    });
 
                     if (validAssignments.length > 0) {
                         if (ageGroup === '17U' && validAssignments.length >= 2) {
@@ -140,13 +134,11 @@ async function populateReport() {
 
                         // Adjust column layout based on number of valid assignments
                         if (validAssignments.length === 1) {
-                            // Single umpire: one column spanning 2 spaces
                             const assignment = validAssignments[0];
                             umpireColumns = [
                                 `<td colspan="2" style="text-align: center;">${assignment._embedded?.official?.first_name || ''} ${assignment._embedded?.official?.last_name || ''} - $${firstUmpirePay}</td>`
                             ];
                         } else if (validAssignments.length >= 2) {
-                            // Two umpires: 2 wider columns, each with name and pay
                             umpireColumns = [
                                 `<td style="text-align: center;">${validAssignments[0]._embedded?.official?.first_name || ''} ${validAssignments[0]._embedded?.official?.last_name || ''} - $${firstUmpirePay}</td>`,
                                 `<td style="text-align: center;">${validAssignments[1]._embedded?.official?.first_name || ''} ${validAssignments[1]._embedded?.official?.last_name || ''} - $${secondUmpirePay}</td>`
