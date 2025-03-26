@@ -135,7 +135,7 @@ async function populateReport() {
                 let umpireColumns = [];
                 
                 assignments.forEach((assignment, index) => {
-                    if (index < 2 ) { // Limitting to two umpires
+                    if (index === 2 ) { // Limitting to two umpires
                         umpireColumns.push(`
                             <td>${assignment._embedded?.official?.first_name || ''} ${assignment._embedded?.official?.last_name || ''}</td>
                             <td>$${firstUmpirePay}</td>
