@@ -209,7 +209,7 @@ async function populateUmpireReport() {
 
         // Calculate game pay
         let gamePay = 0;
-        if (ageGroup === '17U' || ageGroup === '8U' || ageGroup === '7U' || ageGroup.includes('MAJ') || ageGroup === '6UCP') {
+        if (ageGroup === '17U' || ageGroup.includes('MAJ')) {
             if (assignments.length === 1 && ageGroup === '17U') {
                 gamePay = 80;
             } else if (assignments.length === 1) {
