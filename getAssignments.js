@@ -188,8 +188,8 @@ async function populateReport() {
 }
 async function populateUmpireReport() {
     // Configuration
-    const tokenUrl = `${prodBaseUrl}/proxy/oauth/token`; // Updated
-    const apiUrl = `${prodBaseUrl}/api`; // Updated
+    const tokenUrl = `${prodBaseUrl}/proxy/oauth/token`;
+    const apiUrl = `${prodBaseUrl}/api`;
     const clientId = client_id;
     const clientSecret = client_secret;
     const accessToken = await getToken(tokenUrl, clientId, clientSecret);
@@ -208,7 +208,7 @@ async function populateUmpireReport() {
         '15U': 80, '17U': 60
     };
 
-    // Group payments by park and then date
+    // Group payments by park and then date, excluding Unknown Umpire
     const paymentsByParkAndDate = games.reduce((acc, game) => {
         const parkName = game._embedded?.venue?.name || 'Unknown Park';
         const gameDate = new Date(game.start_time).toLocaleDateString();
@@ -225,11 +225,16 @@ async function populateUmpireReport() {
             gamePay = assignments.length === 1 ? 60 : (payRates[ageGroup] || 0);
         }
 
-        // Process each assignment
+        // Process each assignment, excluding unknown umpires
         assignments.forEach(assignment => {
-            const umpireId = assignment._embedded?.official?.id || 'unknown';
-            const umpireName = `${assignment._embedded?.official?.first_name || ''} ${assignment._embedded?.official?.last_name || ''}`.trim() || 'Unknown Umpire';
-            
+            const umpireId = assignment._embedded?.official?.id;
+            const umpireName = `${assignment._embedded?.official?.first_name || ''} ${assignment._embedded?.official?.last_name || ''}`.trim();
+
+            // Skip if no valid umpire ID or name
+            if (!umpireId || !umpireName || umpireName === 'Unknown Umpire') {
+                return;
+            }
+
             if (!acc[parkName]) {
                 acc[parkName] = {};
             }
@@ -267,6 +272,9 @@ async function populateUmpireReport() {
             return parkSum + Object.values(dateUmpires).reduce((dateSum, umpire) => dateSum + umpire.totalPay, 0);
         }, 0);
 
+        // Skip empty parks after filtering unknown umpires
+        if (parkTotal === 0) continue;
+
         const parkHeader = document.createElement("h3");
         parkHeader.textContent = `${parkName} - $${parkTotal.toFixed(2)}`;
         parkSection.appendChild(parkHeader);
@@ -280,6 +288,9 @@ async function populateUmpireReport() {
             // Calculate daily total
             const umpires = dates[date];
             const dailyTotal = Object.values(umpires).reduce((sum, umpire) => sum + umpire.totalPay, 0);
+
+            // Skip empty dates after filtering
+            if (dailyTotal === 0) continue;
 
             const dateSection = document.createElement("table");
             dateSection.classList.add("date-section");
