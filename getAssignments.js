@@ -77,7 +77,7 @@ async function populateReport() {
 
             const dateHeaderRow = document.createElement("tr");
             dateHeaderRow.innerHTML = `
-                <td colspan="16" class="date-header">${dayName}</td>
+                <td colspan="9" class="date-header">${dayName}</td>
             `;
             dateSection.appendChild(dateHeaderRow);
 
@@ -90,7 +90,8 @@ async function populateReport() {
                 <th>Park</th>
                 <th>Field</th>
                 <th>Age Group</th>
-                <th colspan="8">Assignments</th>
+                <th>Umpire 1</th>
+                <th>Umpire 2</th>
             `;
             dateSection.appendChild(tableHeaderRow);
 
@@ -139,26 +140,17 @@ async function populateReport() {
 
                         // Adjust column layout based on number of valid assignments
                         if (validAssignments.length === 1) {
-                            // Single umpire layout - combine name and pay in one wider column
+                            // Single umpire: one column spanning 2 spaces
                             const assignment = validAssignments[0];
-                            umpireColumns.push(`
-                                <td colspan="8" style="text-align: center;">
-                                    ${assignment._embedded?.official?.first_name || ''} 
-                                    ${assignment._embedded?.official?.last_name || ''} 
-                                    - $${firstUmpirePay}
-                                </td>
-                            `);
-                        } else {
-                            // Multiple umpire layout - separate columns for each
-                            validAssignments.slice(0, 2).forEach((assignment, index) => {
-                                const pay = index === 0 ? firstUmpirePay : secondUmpirePay;
-                                if (pay > 0) {
-                                    umpireColumns.push(`
-                                        <td>${assignment._embedded?.official?.first_name || ''} ${assignment._embedded?.official?.last_name || ''}</td>
-                                        <td>$${pay}</td>
-                                    `);
-                                }
-                            });
+                            umpireColumns = [
+                                `<td colspan="2" style="text-align: center;">${assignment._embedded?.official?.first_name || ''} ${assignment._embedded?.official?.last_name || ''} - $${firstUmpirePay}</td>`
+                            ];
+                        } else if (validAssignments.length >= 2) {
+                            // Two umpires: 2 wider columns, each with name and pay
+                            umpireColumns = [
+                                `<td style="text-align: center;">${validAssignments[0]._embedded?.official?.first_name || ''} ${validAssignments[0]._embedded?.official?.last_name || ''} - $${firstUmpirePay}</td>`,
+                                `<td style="text-align: center;">${validAssignments[1]._embedded?.official?.first_name || ''} ${validAssignments[1]._embedded?.official?.last_name || ''} - $${secondUmpirePay}</td>`
+                            ];
                         }
                     }
                 }
@@ -179,7 +171,7 @@ async function populateReport() {
             });
 
             const totalRow = document.createElement("tr");
-            totalRow.innerHTML = `<td colspan="16" style="font-weight: bold;">Total Pay for ${date} = $${totalPayforDate}</td>`;
+            totalRow.innerHTML = `<td colspan="9" style="font-weight: bold;">Total Pay for ${date} = $${totalPayforDate}</td>`;
             dateSection.appendChild(totalRow);
             parkDiv.appendChild(dateSection);
         }
@@ -187,8 +179,8 @@ async function populateReport() {
         // Output weekly totals
         const totalWeekRow = document.createElement("tr");
         totalWeekRow.innerHTML = `
-            <td colspan="16" style="font-weight: bold;">${park}</td><br>
-            <td colspan="16" style="font-weight: bold; font-size: .75em;">Total Pay = $${totalWeeklyPay}</td>
+            <td colspan="9" style="font-weight: bold;">${park}</td><br>
+            <td colspan="9" style="font-weight: bold; font-size: .75em;">Total Pay = $${totalWeeklyPay}</td>
         `;
         parkHeader.innerHTML = totalWeekRow.innerHTML;
         gamesContainer.appendChild(parkDiv);
