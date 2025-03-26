@@ -209,12 +209,17 @@ async function populateUmpireReport() {
 
         // Calculate game pay
         let gamePay = 0;
-        if (ageGroup === '17U' || ageGroup === '8U' || ageGroup === '7U' || ageGroup === '8UMAJ' || ageGroup === '6UCP') {
-            gamePay = payRates[ageGroup] || 0;
-        } else if (ageGroup === '9U') {
-            gamePay = payRates[ageGroup] || 0;
+        if (ageGroup === '17U' || ageGroup === '8U' || ageGroup === '7U' || ageGroup.includes('MAJ') || ageGroup === '6UCP') {
+            if (assignments.length === 1 && ageGroup === '17U') {
+                gamePay = 80;
+            } else if (assignments.length === 1) {
+                gamePay = 50;
+            } else {
+                gamePay = payRates[ageGroup] || 0;
+            }
+            
         } else {
-            gamePay = assignments.length === 1 ? 60 : (payRates[ageGroup] || 0);
+            gamePay = (payRates[ageGroup] || 0);
         }
 
         // Process each assignment, excluding unknown umpires
