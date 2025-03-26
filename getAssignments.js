@@ -106,6 +106,9 @@ async function populateReport() {
                 if (assignmentCount > 0) {
                     let firstUmpirePay = 0;
                     let secondUmpirePay = 0;
+                    let validAssignments = assignments.filter(assignment => 
+                        assignment._embedded?.official?.first_name || assignment._embedded?.official?.last_name
+                    );
 
                     if (ageGroup === '17U' && assignmentCount >= 2) {
                         firstUmpirePay = payRates[ageGroup];
@@ -127,16 +130,37 @@ async function populateReport() {
                             firstUmpirePay = payRates[ageGroup] || 60;
                             secondUmpirePay = payRates[ageGroup] || 60;
                         }
-                    }
+                    }if (validAssignments.length > 0) {
+                        if (ageGroup === '17U' && validAssignments.length >= 2) {
+                            firstUmpirePay = payRates[ageGroup];
+                            secondUmpirePay = payRates[ageGroup];
+                        } else if (['8U', '7U', '8UMAJ'].includes(ageGroup) && validAssignments.length >= 2) {
+                            firstUmpirePay = payRates[ageGroup];
+                            secondUmpirePay = payRates[ageGroup];
+                        } else if (ageGroup === '9U') {
+                            if (validAssignments.length === 2) {
+                                firstUmpirePay = payRates[ageGroup];
+                                secondUmpirePay = payRates[ageGroup];
+                            } else if (validAssignments.length === 1) {
+                                firstUmpirePay = payRates[ageGroup];
+                            }
+                        } else {
+                            if (validAssignments.length === 1) {
+                                firstUmpirePay = payRates[ageGroup] || 60;
+                            } else if (validAssignments.length >= 2) {
+                                firstUmpirePay = payRates[ageGroup] || 60;
+                                secondUmpirePay = payRates[ageGroup] || 60;
+                            }
+                        }
 
                     gamePay = firstUmpirePay + secondUmpirePay;
                     totalPayforDate += gamePay;
                     totalWeeklyPay += gamePay;
 
                     // Generate umpire columns only for assigned umpires
-                    assignments.forEach((assignment, index) => {
-                        if (index < 2) { // Limiting to two umpires
-                            const pay = index === 0 ? firstUmpirePay : secondUmpirePay;
+                    validAssignments.slice(0, 2).forEach((assignment, index) => {
+                        const pay = index === 0 ? firstUmpirePay : secondUmpirePay;
+                        if (pay > 0) {  // Only add column if there's actual pay
                             umpireColumns.push(`
                                 <td>${assignment._embedded?.official?.first_name || ''} ${assignment._embedded?.official?.last_name || ''}</td>
                                 <td>$${pay}</td>
