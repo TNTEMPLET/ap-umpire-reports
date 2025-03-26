@@ -2,9 +2,9 @@ import { assignr_url, client_id, client_secret, devBaseUrl, prodBaseUrl } from "
 import { getToken, getGameIds } from "./apiFunctions.js";
 
 async function populateReport() {
-    // Configuration
-    const tokenUrl = `${prodBaseUrl}/proxy/oauth/token`; // Updated
-    const apiUrl = `${prodBaseUrl}/api`; // Updated
+    // Configuration (unchanged)
+    const tokenUrl = `${prodBaseUrl}/proxy/oauth/token`;
+    const apiUrl = `${prodBaseUrl}/api`;
     const clientId = client_id;
     const clientSecret = client_secret;
     const accessToken = await getToken(tokenUrl, clientId, clientSecret);
@@ -14,8 +14,9 @@ async function populateReport() {
     const games = await getGameIds(accessToken, apiUrl, siteId, startDate, endDate);
     const gamesContainer = document.getElementById("games-container");
     gamesContainer.innerHTML = '';
-     // Add Pay Scale
-     const payRates = {
+
+    // Pay Scale (unchanged)
+    const payRates = {
         '6UCP': 40,
         '7U': 40,
         '8U': 40,
@@ -28,7 +29,8 @@ async function populateReport() {
         '15U': 80,
         '17U': 60
     };
-    // Group games by venue
+
+    // Group games by venue (unchanged)
     const groupedGames = games.reduce((acc, game) => {
         const park = game._embedded.venue.name;
         if (!acc[park]) {
@@ -36,11 +38,10 @@ async function populateReport() {
         }
         acc[park].push(game);
         return acc;
-    }, {}); 
-    //Create table rows with park headers
+    }, {});
+
+    // Create table rows with park headers
     for (const park in groupedGames) {
-       
-        // Add Park Header
         const parkDiv = document.createElement("div");
         parkDiv.classList.add("park-section");
         const parkHeader = document.createElement("h1");
@@ -51,7 +52,8 @@ async function populateReport() {
         parkDiv.appendChild(dateRangeHeader);
         
         let totalWeeklyPay = 0;
-        // Group Games by date for this park
+        
+        // Group Games by date for this park (unchanged)
         const gamesByDate = groupedGames[park].reduce((acc, game) => {
             const gameDate = new Date(game.start_time).toLocaleDateString();
             if (!acc[gameDate]) {
@@ -60,6 +62,7 @@ async function populateReport() {
             acc[gameDate].push(game);
             return acc;
         }, {});
+
         // Process each date
         for (const date in gamesByDate) {
             const games = gamesByDate[date];
@@ -72,13 +75,13 @@ async function populateReport() {
             const dateSection = document.createElement("table");
             dateSection.classList.add("date-section");
 
-            const dateHeaderRow = document.createElement("tr")
-            dateHeaderRow.innerHTML =`
+            const dateHeaderRow = document.createElement("tr");
+            dateHeaderRow.innerHTML = `
                 <td colspan=16 class="date-header">${dayName}</td>
             `;
             dateSection.appendChild(dateHeaderRow);
 
-            const tableHeaderRow = document.createElement("tr")
+            const tableHeaderRow = document.createElement("tr");
             tableHeaderRow.innerHTML = `
                 <th>Date</th>
                 <th>Time</th>
@@ -95,56 +98,53 @@ async function populateReport() {
             games.forEach(game => {
                 const assignments = game._embedded.assignments || [];
                 const assignmentCount = assignments.length;
-                const firstName = assignments._embedded?.official?.first_name || '';
                 const ageGroup = game.age_group;
-                let firstUmpirePay = 0;
-                let secondUmpirePay = 0;
-
-                // Set pay based on the number of umpires assigned
-                if (ageGroup === '17U') {
-                    // Always 2 umpires for 16U
-                    firstUmpirePay = payRates[ageGroup];  // Rate for the first umpire
-                    secondUmpirePay = payRates[ageGroup];  // Rate for the second umpire
-                } else if (ageGroup === '8U' || ageGroup === '7U' || ageGroup === '8UMAJ') {
-                    // Always 2 umpires for 8U and 7U
-                    firstUmpirePay = payRates[ageGroup];  // Adjust to the specific rate for 7U/8U
-                    secondUmpirePay = payRates[ageGroup];  // Adjust to the specific rate for 7U/8U
-                } else if (ageGroup === '9U') {
-                    if (assignmentCount === 2) {
-                        // Specific pay logic for 2 umpires in 9U
-                        firstUmpirePay = payRates[ageGroup];  // Adjust if different for the first umpire
-                        secondUmpirePay = payRates[ageGroup];  // Adjust if different for the second umpire
-                    } else {
-                        // Only one umpire assigned for 9U
-                        firstUmpirePay = payRates[ageGroup];  // Pay for one umpire
-                    }
-                } else {
-                    // Default case for other age groups (1 umpire)
-                    if (assignmentCount === 1) {
-                        firstUmpirePay = 60 || 0; // Standard pay
-                    } else {
-                        // Special case for 2 umpires
-                        firstUmpirePay = payRates[ageGroup] || 0;  // Adjust if different for the first umpire
-                        secondUmpirePay = payRates[ageGroup] || 0;  // Adjust if different for the second umpire
-                    }
-                }
-        
-
-                let gamePay = firstUmpirePay + secondUmpirePay; // Total pay for the game
-                let fieldPosition = assignmentCount > 1 ? assignments[0]?.position || '' : '';
+                let gamePay = 0; // Initialize game pay to 0
                 let umpireColumns = [];
-                
-                assignments.forEach((assignment, index) => {
-                    if (index < 2 ) { // Limitting to two umpires
-                        umpireColumns.push(`
-                            <td>${assignment._embedded?.official?.first_name || ''} ${assignment._embedded?.official?.last_name || ''}</td>
-                            <td>$${firstUmpirePay}</td>
-                        `);
+
+                // Only calculate pay if there are assignments
+                if (assignmentCount > 0) {
+                    let firstUmpirePay = 0;
+                    let secondUmpirePay = 0;
+
+                    if (ageGroup === '17U' && assignmentCount >= 2) {
+                        firstUmpirePay = payRates[ageGroup];
+                        secondUmpirePay = payRates[ageGroup];
+                    } else if (['8U', '7U', '8UMAJ'].includes(ageGroup) && assignmentCount >= 2) {
+                        firstUmpirePay = payRates[ageGroup];
+                        secondUmpirePay = payRates[ageGroup];
+                    } else if (ageGroup === '9U') {
+                        if (assignmentCount === 2) {
+                            firstUmpirePay = payRates[ageGroup];
+                            secondUmpirePay = payRates[ageGroup];
+                        } else if (assignmentCount === 1) {
+                            firstUmpirePay = payRates[ageGroup];
+                        }
+                    } else {
+                        if (assignmentCount === 1) {
+                            firstUmpirePay = payRates[ageGroup] || 60;
+                        } else if (assignmentCount >= 2) {
+                            firstUmpirePay = payRates[ageGroup] || 60;
+                            secondUmpirePay = payRates[ageGroup] || 60;
+                        }
                     }
-                });
-                // Update daily and weekly totals
-                totalPayforDate += gamePay 
-                totalWeeklyPay += gamePay
+
+                    gamePay = firstUmpirePay + secondUmpirePay;
+                    totalPayforDate += gamePay;
+                    totalWeeklyPay += gamePay;
+
+                    // Generate umpire columns only for assigned umpires
+                    assignments.forEach((assignment, index) => {
+                        if (index < 2) { // Limiting to two umpires
+                            const pay = index === 0 ? firstUmpirePay : secondUmpirePay;
+                            umpireColumns.push(`
+                                <td>${assignment._embedded?.official?.first_name || ''} ${assignment._embedded?.official?.last_name || ''}</td>
+                                <td>$${pay}</td>
+                            `);
+                        }
+                    });
+                }
+
                 // Add Game rows for the park
                 const row = document.createElement("tr");
                 row.innerHTML = `
@@ -159,17 +159,19 @@ async function populateReport() {
                 `;
                 dateSection.appendChild(row);
             });
+
             const totalRow = document.createElement("tr");
             totalRow.innerHTML = `<td colspan="16" style="font-weight: bold;">Total Pay for ${date} = $${totalPayforDate}</td>`;
             dateSection.appendChild(totalRow);
             parkDiv.appendChild(dateSection);
         }
-         //Output weekly totals
+
+        // Output weekly totals
         const totalWeekRow = document.createElement("tr");
         totalWeekRow.innerHTML = `
             <td colspan="16" style="font-weight: bold;">${park}</td></br>
             <td colspan="16" style="font-weight: bold; font-size: .75em;">Total Pay  = $${totalWeeklyPay}</td>
-            `;
+        `;
         parkHeader.innerHTML = totalWeekRow.innerHTML;
         gamesContainer.appendChild(parkDiv);
     }
