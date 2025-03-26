@@ -182,7 +182,6 @@ async function populateReport() {
                     ${umpireColumns.join('')}
                 `;
                 dateSection.appendChild(row);
-            });
 
             const totalRow = document.createElement("tr");
             totalRow.innerHTML = `<td colspan="16" style="font-weight: bold;">Total Pay for ${date} = $${totalPayforDate}</td>`;
