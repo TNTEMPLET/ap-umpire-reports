@@ -99,7 +99,7 @@ async function populateReport() {
                 const assignments = game._embedded.assignments || [];
                 const assignmentCount = assignments.length;
                 const ageGroup = game.age_group;
-                let gamePay = 0; // Initialize game pay to 0
+                let gamePay = 0;
                 let umpireColumns = [];
 
                 // Only calculate pay if there are assignments
@@ -137,16 +137,29 @@ async function populateReport() {
                         totalPayforDate += gamePay;
                         totalWeeklyPay += gamePay;
 
-                        // Generate umpire columns only for assigned umpires
-                        validAssignments.slice(0, 2).forEach((assignment, index) => {
-                            const pay = index === 0 ? firstUmpirePay : secondUmpirePay;
-                            if (pay > 0) {  // Only add column if there's actual pay
-                                umpireColumns.push(`
-                                    <td>${assignment._embedded?.official?.first_name || ''} ${assignment._embedded?.official?.last_name || ''}</td>
-                                    <td>$${pay}</td>
-                                `);
-                            }
-                        });
+                        // Adjust column layout based on number of valid assignments
+                        if (validAssignments.length === 1) {
+                            // Single umpire layout - combine name and pay in one wider column
+                            const assignment = validAssignments[0];
+                            umpireColumns.push(`
+                                <td colspan="8" style="text-align: center;">
+                                    ${assignment._embedded?.official?.first_name || ''} 
+                                    ${assignment._embedded?.official?.last_name || ''} 
+                                    - $${firstUmpirePay}
+                                </td>
+                            `);
+                        } else {
+                            // Multiple umpire layout - separate columns for each
+                            validAssignments.slice(0, 2).forEach((assignment, index) => {
+                                const pay = index === 0 ? firstUmpirePay : secondUmpirePay;
+                                if (pay > 0) {
+                                    umpireColumns.push(`
+                                        <td>${assignment._embedded?.official?.first_name || ''} ${assignment._embedded?.official?.last_name || ''}</td>
+                                        <td>$${pay}</td>
+                                    `);
+                                }
+                            });
+                        }
                     }
                 }
 
