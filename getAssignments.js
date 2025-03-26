@@ -83,8 +83,7 @@ async function populateReport() {
                 <th>Park</th>
                 <th>Field</th>
                 <th>Age Group</th>
-                <th>Umpire 1</th>
-                <th>Umpire 2</th>
+                <th colspan="2">Assignment(s)</th>
             `;
             dateSection.appendChild(tableHeaderRow);
 
