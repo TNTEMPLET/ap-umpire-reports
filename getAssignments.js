@@ -360,6 +360,9 @@ endDateInput.addEventListener('input', updateDateRange)
 async function printReport(){
     window.print();
 }
+
+// Event listeners for buttons and filters
+document.getElementById("division-filter").addEventListener("change", populateReport);
 document.getElementById("generate-main-report").addEventListener('click', populateReport);
 document.getElementById("generate-umpire-report").addEventListener('click', populateUmpireReport);
 document.getElementById("print-report").addEventListener('click', printReport);
