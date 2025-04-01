@@ -23,12 +23,12 @@ async function populateReport() {
         '15U': 80, '17U': 60
     };
 
+    / Filter games by selected division
     const filteredGames = divisionFilter === "all" 
-    ? games 
-    : games.filter(game => game.age_group === divisionFilter);
+        ? games 
+        : games.filter(game => game.age_group === divisionFilter);
 
-
-    // Group games by venue (unchanged)
+    // Group games by venue
     const groupedGames = filteredGames.reduce((acc, game) => {
         const park = game._embedded.venue.name;
         if (!acc[park]) {
@@ -51,7 +51,7 @@ async function populateReport() {
         
         let totalWeeklyPay = 0;
         
-        // Group Games by date for this park (unchanged)
+        // Group Games by date for this park
         const gamesByDate = groupedGames[park].reduce((acc, game) => {
             const gameDate = new Date(game.start_time).toLocaleDateString();
             if (!acc[gameDate]) {
@@ -102,7 +102,6 @@ async function populateReport() {
                 if (assignments.length > 0) {
                     let firstUmpirePay = 0;
                     let secondUmpirePay = 0;
-                    // Filter out unknown umpires
                     let validAssignments = assignments.filter(assignment => {
                         const umpireId = assignment._embedded?.official?.id;
                         const umpireName = `${assignment._embedded?.official?.first_name || ''} ${assignment._embedded?.official?.last_name || ''}`.trim();
@@ -136,7 +135,6 @@ async function populateReport() {
                         totalPayforDate += gamePay;
                         totalWeeklyPay += gamePay;
 
-                        // Adjust column layout based on number of valid assignments
                         if (validAssignments.length === 1) {
                             const assignment = validAssignments[0];
                             umpireColumns = [
@@ -151,7 +149,6 @@ async function populateReport() {
                     }
                 }
 
-                // Add Game rows for the park
                 const row = document.createElement("tr");
                 row.innerHTML = `
                     <td>${new Date(game.localized_date).toLocaleDateString("en-us")}</td>
@@ -172,7 +169,6 @@ async function populateReport() {
             parkDiv.appendChild(dateSection);
         }
 
-        // Output weekly totals
         const totalWeekRow = document.createElement("tr");
         totalWeekRow.innerHTML = `
             <td colspan="9" style="font-weight: bold;">${park}</td><br>
