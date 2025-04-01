@@ -23,8 +23,13 @@ async function populateReport() {
         '15U': 80, '17U': 60
     };
 
+    const filteredGames = divisionFilter === "all" 
+    ? games 
+    : games.filter(game => game.age_group === divisionFilter);
+
+
     // Group games by venue (unchanged)
-    const groupedGames = games.reduce((acc, game) => {
+    const groupedGames = filteredGames.reduce((acc, game) => {
         const park = game._embedded.venue.name;
         if (!acc[park]) {
             acc[park] = [];
