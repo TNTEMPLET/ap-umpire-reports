@@ -331,20 +331,7 @@ async function populateUmpireReport() {
     gamesContainer.appendChild(reportDiv);
 }
 
-<select id="division-filter">
-    <option value="all">All Divisions</option>
-    <option value="6UCP">6UCP</option>
-    <option value="7U">7U</option>
-    <option value="8U">8U</option>
-    <option value="8UMAJ">8UMAJ</option>
-    <option value="9U">9U</option>
-    <option value="10U">10U</option>
-    <option value="10UMAJ">10UMAJ</option>
-    <option value="12U">12U</option>
-    <option value="12UMAJ">12UMAJ</option>
-    <option value="15U">15U</option>
-    <option value="17U">17U</option>
-</select>
+
 // Add input box handing for date range
 const startDateInput = document.getElementById('start-date');
 const endDateInput = document.getElementById('end-date');
