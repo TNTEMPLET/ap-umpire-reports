@@ -23,7 +23,7 @@ async function populateReport() {
         '15U': 80, '17U': 60
     };
 
-    / Filter games by selected division
+    // Filter games by selected division
     const filteredGames = divisionFilter === "all" 
         ? games 
         : games.filter(game => game.age_group === divisionFilter);
