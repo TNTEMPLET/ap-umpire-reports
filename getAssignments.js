@@ -26,11 +26,26 @@ async function populateReport() {
         '15U': 80, '17U': 60
     };
 
-    // Filter games by selected division
-    const filteredGames = divisionFilter === "all" 
-        ? games 
-        : games.filter(game => game.age_group === divisionFilter);
+    // Define division groups
+    const divisionGroups = {
+        diamond: ['9U', '10U', '12U', '15U', '17U'],
+        littleleague: ['6UCP', '7U', '8U', '10UMAJ', '12UMAJ']
+    };
 
+    // Filter games based on selected division group
+    let filteredGames;
+    switch (divisionFilter) {
+        case 'littleleague':
+            filteredGames = games.filter(game => divisionGroups.littleleague.includes(game.age_group));
+            break;
+        case 'diamond':
+            filteredGames = games.filter(game => divisionGroups.diamond.includes(game.age_group));
+            break;
+        case 'all':
+        default:
+            filteredGames = games;
+            break;
+    }
     // Group games by venue
     const groupedGames = filteredGames.reduce((acc, game) => {
         const park = game._embedded.venue.name;
