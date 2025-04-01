@@ -13,6 +13,9 @@ async function populateReport() {
     const endDate = document.getElementById("end-date").value;
     const games = await getGameIds(accessToken, apiUrl, siteId, startDate, endDate);
     const gamesContainer = document.getElementById("games-container");
+    const divisionFilter = document.getElementById("division-filter") 
+        ? document.getElementById("division-filter").value 
+        : "all";
     gamesContainer.innerHTML = '';
 
     // Pay Scale (unchanged)
