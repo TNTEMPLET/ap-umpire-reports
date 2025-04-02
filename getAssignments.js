@@ -28,8 +28,8 @@ async function populateReport() {
 
     // Define division groups
     const divisionGroups = {
-        diamond: ['9U', '10U', '12U', '15U', '17U'],
-        littleleague: ['6UCP', '7U', '8U', '10UMAJ', '12UMAJ']
+        littleleague: ['9U', '10U', '12U', '15U', '17U'],
+        diamond: ['6UCP', '7U', '8U', '10UMAJ', '12UMAJ']
     };
 
     // Filter games based on selected division group
@@ -46,6 +46,7 @@ async function populateReport() {
             filteredGames = games;
             break;
     }
+
     // Group games by venue
     const groupedGames = filteredGames.reduce((acc, game) => {
         const park = game._embedded.venue.name;
@@ -116,9 +117,14 @@ async function populateReport() {
                 const ageGroup = game.age_group;
                 let gamePay = 0;
                 let umpireColumns = [];
-                
 
-                if (assignments.length > 0) {
+                // Check if game is cancelled
+                if (game.status === "C") {
+                    umpireColumns = [
+                        `<td colspan="2" style="text-align: center;">Cancelled - $0</td>`
+                    ];
+                    gamePay = 0; // Ensure pay is 0 for cancelled games
+                } else if (assignments.length > 0) {
                     let firstUmpirePay = 0;
                     let secondUmpirePay = 0;
                     let validAssignments = assignments.filter(assignment => {
