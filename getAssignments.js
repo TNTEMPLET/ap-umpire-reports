@@ -117,7 +117,12 @@ async function populateReport() {
                 let gamePay = 0;
                 let umpireColumns = [];
 
-                if (assignments.length > 0) {
+                if (game.status === "C") {
+                    umpireColumns = [
+                        `<td colspan="2" style="text-align: center;">Cancelled - $0</td>`
+                    ];
+                    gamePay = 0; // Ensure pay is 0 for cancelled games
+                } else if (assignments.length > 0) {
                     let firstUmpirePay = 0;
                     let secondUmpirePay = 0;
                     let validAssignments = assignments.filter(assignment => {
