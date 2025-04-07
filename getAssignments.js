@@ -29,7 +29,7 @@ async function populateReport() {
     // Define division groups
     const divisionGroups = {
         diamond: ['9U', '10U', '12U', '15U', '17U'],
-        littleleague: ['6UCP', '7U', '8U', '10UMAJ', '12UMAJ']
+        littleleague: ['6UCP', '7U', '8U', '8UMAJ', '10UMAJ', '12UMAJ']
     };
 
     // Filter games based on selected division group
