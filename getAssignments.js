@@ -140,10 +140,10 @@ async function populateReport() {
                         } else if (['8U', '7U', '8UMAJ'].includes(ageGroup) && validAssignments.length >= 2) {
                             firstUmpirePay = payRates[ageGroup];
                             secondUmpirePay = payRates[ageGroup];
-                        } else if (ageGroup === '9U') {
+                        } else if (['9U', '10U', '12U'].includes(ageGroup)) {
                             if (validAssignments.length === 2) {
-                                firstUmpirePay = payRates[ageGroup];
-                                secondUmpirePay = payRates[ageGroup];
+                                firstUmpirePay = 50;
+                                secondUmpirePay = 50;
                             } else if (validAssignments.length === 1) {
                                 firstUmpirePay = payRates[ageGroup];
                             }
