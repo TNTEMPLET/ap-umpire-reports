@@ -47,7 +47,7 @@ async function populateReport() {
             break;
     }
 
-    // NEW: Count games for 12U, 10U, 9U at Tee-Joe Gonzales Park and overall
+    // NEW: Count games for Gonzales League
     const targetAgeGroups = ['17U','15U','12U', '10U', '9U'];
     const teeJoeGames = filteredGames.filter(game => 
         game._embedded.venue.name === 'Tee-Joe Gonzales Park' && 
