@@ -47,7 +47,45 @@ async function populateReport() {
             break;
     }
 
-    // Group games by venue (unchanged)
+    // NEW: Count games for 12U, 10U, 9U at Tee-Joe Gonzales Park and overall
+    const targetAgeGroups = ['12U', '10U', '9U'];
+    const teeJoeGames = filteredGames.filter(game => 
+        game._embedded.venue.name === 'Tee-Joe Gonzales Park' && 
+        targetAgeGroups.includes(game.age_group)
+    ).length;
+    const totalGames = filteredGames.filter(game => 
+        targetAgeGroups.includes(game.age_group)
+    ).length;
+
+    // NEW: Create summary section for Tee-Joe Gonzales Park vs Total
+    const summarySection = document.createElement("div");
+    summarySection.classList.add("summary-section");
+
+    const summaryHeader = document.createElement("h2");
+    summaryHeader.textContent = `Games for 12U, 10U, 9U (From: ${startDate} To: ${endDate})`;
+    summarySection.appendChild(summaryHeader);
+
+    const summaryTable = document.createElement("table");
+    summaryTable.classList.add("summary-table");
+    summaryTable.innerHTML = `
+        <tr>
+            <th>Location</th>
+            <th>Number of Games (12U, 10U, 9U)</th>
+        </tr>
+        <tr>
+            <td>Tee-Joe Gonzales Park</td>
+            <td>${teeJoeGames}</td>
+        </tr>
+        <tr>
+            <td>All Parks</td>
+            <td>${totalGames}</td>
+        </tr>
+    `;
+    summarySection.appendChild(summaryTable);
+    gamesContainer.appendChild(summarySection);
+
+    // Rest of the function (grouping by park, etc.) remains unchanged
+    // Group games by venue
     const groupedGames = filteredGames.reduce((acc, game) => {
         const park = game._embedded.venue.name;
         if (!acc[park]) {
@@ -57,71 +95,7 @@ async function populateReport() {
         return acc;
     }, {});
 
-    // NEW: Count games by park
-    const gamesByPark = Object.keys(groupedGames).reduce((acc, park) => {
-        acc[park] = groupedGames[park].length;
-        return acc;
-    }, {});
-
-    // NEW: Count games by division
-    const gamesByDivision = filteredGames.reduce((acc, game) => {
-        const division = game.age_group || 'Unknown';
-        acc[division] = (acc[division] || 0) + 1;
-        return acc;
-    }, {});
-
-    // NEW: Create summary section for games by park
-    const summarySection = document.createElement("div");
-    summarySection.classList.add("summary-section");
-
-    const parkSummaryHeader = document.createElement("h2");
-    parkSummaryHeader.textContent = `Games by Park (From: ${startDate} To: ${endDate})`;
-    summarySection.appendChild(parkSummaryHeader);
-
-    const parkTable = document.createElement("table");
-    parkTable.classList.add("summary-table");
-    parkTable.innerHTML = `
-        <tr>
-            <th>Park</th>
-            <th>Number of Games</th>
-        </tr>
-    `;
-    for (const park in gamesByPark) {
-        const row = document.createElement("tr");
-        row.innerHTML = `
-            <td>${park}</td>
-            <td>${gamesByPark[park]}</td>
-        `;
-        parkTable.appendChild(row);
-    }
-    summarySection.appendChild(parkTable);
-
-    // NEW: Create summary section for games by division
-    const divisionSummaryHeader = document.createElement("h2");
-    divisionSummaryHeader.textContent = `Games by Division`;
-    summarySection.appendChild(divisionSummaryHeader);
-
-    const divisionTable = document.createElement("table");
-    divisionTable.classList.add("summary-table");
-    divisionTable.innerHTML = `
-        <tr>
-            <th>Division</th>
-            <th>Number of Games</th>
-        </tr>
-    `;
-    for (const division in gamesByDivision) {
-        const row = document.createElement("tr");
-        row.innerHTML = `
-            <td>${division}</td>
-            <td>${gamesByDivision[division]}</td>
-        `;
-        divisionTable.appendChild(row);
-    }
-    summarySection.appendChild(divisionTable);
-
-    gamesContainer.appendChild(summarySection);
-
-    // Rest of the function (unchanged) - Create table rows with park headers
+    // Create table rows with park headers
     for (const park in groupedGames) {
         const parkDiv = document.createElement("div");
         parkDiv.classList.add("park-section");
@@ -201,7 +175,7 @@ async function populateReport() {
                         if (ageGroup === '17U' && validAssignments.length >= 2) {
                             firstUmpirePay = payRates[ageGroup];
                             secondUmpirePay = payRates[ageGroup];
-                        } else if (['8U', '7U', '8UMAJ'].includes(ageGroup) && validAssignments.length >= 2) {
+                        } else if (['8U', '7U', '8UMAJ'].includes(game.age_group) && validAssignments.length >= 2) {
                             firstUmpirePay = payRates[ageGroup];
                             secondUmpirePay = payRates[ageGroup];
                         } else if (['9U', '10U', '12U'].includes(ageGroup)) {
