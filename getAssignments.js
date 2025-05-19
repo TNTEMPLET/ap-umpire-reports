@@ -70,7 +70,7 @@ async function populateReport() {
     summaryTable.innerHTML = `
         <tr>
             <th>Location</th>
-            <th>Number of Games (12U, 10U, 9U)</th>
+            <th>Total Games</th>
         </tr>
         <tr>
             <td>Tee-Joe Gonzales Park</td>
