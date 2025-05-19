@@ -149,3 +149,17 @@ tbody tr:nth-child(even) {
     padding: 5px;
     font-weight: bold;
 }
+
+.summary-table {
+    border-collapse: collapse;
+    width: 100%;
+    margin-bottom: 20px;
+}
+.summary-table th, .summary-table td {
+    border: 1px solid #ddd;
+    padding: 8px;
+    text-align: left;
+}
+.summary-table th {
+    background-color: #f2f2f2;
+}
