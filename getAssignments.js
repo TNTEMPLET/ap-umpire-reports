@@ -178,10 +178,28 @@ async function populateReport() {
                 } else if (ageGroup === '9U') {
                     if (assignmentCount === 2) {
                         // Specific pay logic for 2 umpires in 9U
-                        firstUmpirePay = payRates[ageGroup];  // Adjust if different for the first umpire
-                        secondUmpirePay = 40;  // Adjust if different for the second umpire
+                        firstUmpirePay = 50;  // Adjust if different for the first umpire
+                        secondUmpirePay = 50;  // Adjust if different for the second umpire
                     } else {
                         // Only one umpire assigned for 9U
+                        firstUmpirePay = payRates[ageGroup];  // Pay for one umpire
+                    }
+                } else if (ageGroup === '10U') {
+                    if (assignmentCount === 2) {
+                        // Specific pay logic for 2 umpires in 9U
+                        firstUmpirePay = 50;  // Adjust if different for the first umpire
+                        secondUmpirePay = 50;  // Adjust if different for the second umpire
+                    } else {
+                        // Only one umpire assigned for 10U
+                        firstUmpirePay = payRates[ageGroup];  // Pay for one umpire
+                    }
+                } else if (ageGroup === '12U') {
+                    if (assignmentCount === 2) {
+                        // Specific pay logic for 2 umpires in 9U
+                        firstUmpirePay = 50;  // Adjust if different for the first umpire
+                        secondUmpirePay = 50;  // Adjust if different for the second umpire
+                    } else {
+                        // Only one umpire assigned for 10U
                         firstUmpirePay = payRates[ageGroup];  // Pay for one umpire
                     }
                 } else {
