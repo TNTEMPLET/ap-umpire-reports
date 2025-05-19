@@ -48,9 +48,17 @@ async function populateReport() {
     }
 
     // NEW: Count games for 12U, 10U, 9U at Tee-Joe Gonzales Park and overall
-    const targetAgeGroups = ['12U', '10U', '9U'];
+    const targetAgeGroups = ['17U','15U','12U', '10U', '9U'];
     const teeJoeGames = filteredGames.filter(game => 
         game._embedded.venue.name === 'Tee-Joe Gonzales Park' && 
+        targetAgeGroups.includes(game.age_group)
+    ).length;
+    const stevensParkGames = filteredGames.filter(game => 
+        game._embedded.venue.name === 'Stevens Park' && 
+        targetAgeGroups.includes(game.age_group)
+    ).length;
+    const clouatreParkGames = filteredGames.filter(game => 
+        game._embedded.venue.name === 'Roger J. Clouatre Memorial Park' && 
         targetAgeGroups.includes(game.age_group)
     ).length;
     const totalGames = filteredGames.filter(game => 
@@ -62,7 +70,7 @@ async function populateReport() {
     summarySection.classList.add("summary-section");
 
     const summaryHeader = document.createElement("h2");
-    summaryHeader.textContent = `Games for 12U, 10U, 9U (From: ${startDate} To: ${endDate})`;
+    summaryHeader.textContent = `Games for Gonzales League (From: ${startDate} To: ${endDate})`;
     summarySection.appendChild(summaryHeader);
 
     const summaryTable = document.createElement("table");
@@ -75,6 +83,14 @@ async function populateReport() {
         <tr>
             <td>Tee-Joe Gonzales Park</td>
             <td>${teeJoeGames}</td>
+        </tr>
+        <tr>
+            <td>Stevens Park</td>
+            <td>${stevensParkGames}</td>
+        </tr>
+        <tr>
+            <td>Clouatre Park Park</td>
+            <td>${clouatreParkGames}</td>
         </tr>
         <tr>
             <td>All Parks</td>
