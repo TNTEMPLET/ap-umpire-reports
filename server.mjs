@@ -3,7 +3,7 @@ import request from 'request';
 import cors from 'cors';
 
 const app = express();
-const PORT = 3000;
+const PORT = 3100;
 
 app.use(cors()); // Enable CORS for all requests
 
