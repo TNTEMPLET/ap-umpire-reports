@@ -26,13 +26,13 @@ async function populateReport() {
         '15U': 80, '17U': 60
     };
 
-    // Define division groups
+    // Define division groups (unchanged)
     const divisionGroups = {
         diamond: ['9U', '10U', '12U', '15U', '17U'],
         littleleague: ['6UCP', '7U', '8U', '8UMAJ', '10UMAJ', '12UMAJ']
     };
 
-    // Filter games based on selected division group
+    // Filter games based on selected division group (unchanged)
     let filteredGames;
     switch (divisionFilter) {
         case 'littleleague':
@@ -47,7 +47,7 @@ async function populateReport() {
             break;
     }
 
-    // Group games by venue
+    // Group games by venue (unchanged)
     const groupedGames = filteredGames.reduce((acc, game) => {
         const park = game._embedded.venue.name;
         if (!acc[park]) {
@@ -57,7 +57,71 @@ async function populateReport() {
         return acc;
     }, {});
 
-    // Create table rows with park headers
+    // NEW: Count games by park
+    const gamesByPark = Object.keys(groupedGames).reduce((acc, park) => {
+        acc[park] = groupedGames[park].length;
+        return acc;
+    }, {});
+
+    // NEW: Count games by division
+    const gamesByDivision = filteredGames.reduce((acc, game) => {
+        const division = game.age_group || 'Unknown';
+        acc[division] = (acc[division] || 0) + 1;
+        return acc;
+    }, {});
+
+    // NEW: Create summary section for games by park
+    const summarySection = document.createElement("div");
+    summarySection.classList.add("summary-section");
+
+    const parkSummaryHeader = document.createElement("h2");
+    parkSummaryHeader.textContent = `Games by Park (From: ${startDate} To: ${endDate})`;
+    summarySection.appendChild(parkSummaryHeader);
+
+    const parkTable = document.createElement("table");
+    parkTable.classList.add("summary-table");
+    parkTable.innerHTML = `
+        <tr>
+            <th>Park</th>
+            <th>Number of Games</th>
+        </tr>
+    `;
+    for (const park in gamesByPark) {
+        const row = document.createElement("tr");
+        row.innerHTML = `
+            <td>${park}</td>
+            <td>${gamesByPark[park]}</td>
+        `;
+        parkTable.appendChild(row);
+    }
+    summarySection.appendChild(parkTable);
+
+    // NEW: Create summary section for games by division
+    const divisionSummaryHeader = document.createElement("h2");
+    divisionSummaryHeader.textContent = `Games by Division`;
+    summarySection.appendChild(divisionSummaryHeader);
+
+    const divisionTable = document.createElement("table");
+    divisionTable.classList.add("summary-table");
+    divisionTable.innerHTML = `
+        <tr>
+            <th>Division</th>
+            <th>Number of Games</th>
+        </tr>
+    `;
+    for (const division in gamesByDivision) {
+        const row = document.createElement("tr");
+        row.innerHTML = `
+            <td>${division}</td>
+            <td>${gamesByDivision[division]}</td>
+        `;
+        divisionTable.appendChild(row);
+    }
+    summarySection.appendChild(divisionTable);
+
+    gamesContainer.appendChild(summarySection);
+
+    // Rest of the function (unchanged) - Create table rows with park headers
     for (const park in groupedGames) {
         const parkDiv = document.createElement("div");
         parkDiv.classList.add("park-section");
